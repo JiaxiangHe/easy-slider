@@ -1,0 +1,34 @@
+{
+  "name": "simple-carousel",
+  "version": "1.0.0",
+  "description": "a simple carousel",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode=development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JiaxiangHe/simple-carousel.git"
+  },
+  "keywords": [
+    "carousel"
+  ],
+  "author": "jiaxiang.he",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JiaxiangHe/simple-carousel/issues"
+  },
+  "homepage": "https://github.com/JiaxiangHe/simple-carousel#readme",
+  "devDependencies": {
+    "autoprefixer": "^9.0.2",
+    "css-loader": "^1.0.0",
+    "mini-css-extract-plugin": "^0.4.1",
+    "node-sass": "^4.9.2",
+    "postcss-loader": "^2.1.6",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
+  }
+}

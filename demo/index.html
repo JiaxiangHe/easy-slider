@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="demo.css" />
+    <style>
+        .simple-carousel__item {
+            height: 60px;
+            background: red;
+            text-align: center;
+            line-height: 60px;
+            user-select: none;
+        }
+        .simple-carousel__item:nth-child(2) {
+            background: blue;
+        }
+        .simple-carousel__item:nth-child(3) {
+            background: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Demo</h1>
+    <div class="test">
+        <div class="simple-carousel">
+            <div class="simple-carousel__wrapper">
+                <div class="simple-carousel__item">slide 1</div>
+                <div class="simple-carousel__item">slide 2</div>
+                <div class="simple-carousel__item">slide 3</div>
+            </div>
+        </div>
+    </div>
+    <script src="demo.js"></script>
+</body>
+</html>
