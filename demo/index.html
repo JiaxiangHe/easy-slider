@@ -9,15 +9,17 @@
     <style>
         .simple-carousel__item {
             height: 60px;
-            background: red;
             text-align: center;
             line-height: 60px;
             user-select: none;
         }
-        .simple-carousel__item:nth-child(2) {
+        .item-red {
+            background: red;
+        }
+        .item-blue {
             background: blue;
         }
-        .simple-carousel__item:nth-child(3) {
+        .item-green {
             background: green;
         }
     </style>
@@ -27,9 +29,9 @@
     <div class="test">
         <div class="simple-carousel">
             <div class="simple-carousel__wrapper">
-                <div class="simple-carousel__item">slide 1</div>
-                <div class="simple-carousel__item">slide 2</div>
-                <div class="simple-carousel__item">slide 3</div>
+                <div class="simple-carousel__item item-red">slide 1</div>
+                <div class="simple-carousel__item item-blue">slide 2</div>
+                <div class="simple-carousel__item item-green">slide 3</div>
             </div>
         </div>
     </div>

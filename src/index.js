@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "crypto";
+import TouchHandler from "./utils/TouchHandler";
 
 function log(type = 'log', ...info) {
     if (this.config.debug) {
@@ -9,13 +9,21 @@ function log(type = 'log', ...info) {
 /**
  * @const ATTRIBUTES
  * @description Collection of constant values for related data attributes of the module
- * @type {{CONTROLS: string, EXPANDED: string, HIDDEN: string}}
+ * @type {{CAROUSEL_WRAPPER: string, CAROUSEL_ITEM: string, CAROUSEL_PAGINATION: string}}
  */
 const CLASSES = {
     CAROUSEL_WRAPPER: 'simple-carousel__wrapper',
     CAROUSEL_ITEM: 'simple-carousel__item',
     CAROUSEL_PAGINATION: 'simple-carousel__pagination'
 };
+
+const DEFAULT_CONFIG = {
+    initialSlide: 0,
+    speed: 300,
+    debug: false,
+    loop: false,
+    effect: 'slide'
+}
 
 export default class SimpleCarousel {
     constructor(selector = '.simple-carousel', config = {
@@ -24,18 +32,19 @@ export default class SimpleCarousel {
         loop: false,
         effect: 'slide'
     }) {
-        // parent element
+        // entry element
         this.element = document.querySelector(selector);
 
         // properties
-        this.config = config; // config
-        this.currentIndex = this.config.initialSlide;
+        this.config = Object.assign({}, DEFAULT_CONFIG, config); // config
+        this.currentIndex = null;
         this.total = null;
         this.slideWidth = null;
 
         // class
-        this.elementStyle = window.getComputedStyle(this.element, null);
+        this.elementStyle = null;
         this.wrapperStyle = null;
+        this.wrapperTouch = null;
 
         // node
         this.wrapper = null;
@@ -55,17 +64,40 @@ export default class SimpleCarousel {
         // cacheDom
         this.cacheDom();
 
+        // prepare class
+        this.elementStyle = window.getComputedStyle(this.element, null);
+        this.wrapperStyle = window.getComputedStyle(this.wrapper, null);
+        this.wrapperTouch = new TouchHandler(this.wrapper);
+
         // prepare properties
         this.total = this.slides.length;
+        this.currentIndex = this.config.initialSlide % this.total;
         this.slideWidth = this.element.clientWidth
             - parseFloat(this.elementStyle.getPropertyValue('padding-left'))
             - parseFloat(this.elementStyle.getPropertyValue('padding-right'));
+        if (this.config.loop) {
+            this.currentPosition = -this.slideWidth * this.total;
+            this.slides.forEach((item, index) => {
+                if (index < this.total) {
+                    const node = item.cloneNode(true);
+                    this.wrapper.appendChild(node);
+                    this.slides.push(node);
+                }
+            });
+            this.slides.forEach((item, index) => {
+                if (index < this.currentIndex) {
+                    this.wrapper.appendChild(item);
+                }
+            });
+        } else {
+            this.currentPosition = -this.slideWidth * this.currentIndex;
+        }
 
-        // init nodes
+        // init style
         switch (this.config.effect) {
             case 'slide':
             default:
-                this.wrapper.style.transform = 'translateX(0px)';
+                this.wrapper.style.transform = `translateX(${this.currentPosition}px)`;
                 break;
         }
         this.slides.forEach((item) => {
@@ -78,13 +110,42 @@ export default class SimpleCarousel {
 
     goTo(index) {
         const nextIndex = this.config.loop ? index + this.total % this.total : Math.max(Math.min(index, this.total - 1), 0);
-        console.log(nextIndex);
+        const diff = nextIndex - this.currentIndex;
+        // console.log(nextIndex);
+        this.wrapper.style.transitionDuration = `${this.config.speed / 1000}s`;
         switch (this.config.effect) {
             case 'slide':
             default:
-                this.wrapper.style.transform = `translateX(-${this.slideWidth * nextIndex}px)`;
+                if (this.config.loop) {
+                    this.currentPosition = -this.slideWidth * (this.total + diff);
+                } else {
+                    this.currentPosition = -this.slideWidth * nextIndex;
+                }
+                this.wrapper.style.transform = `translateX(${this.currentPosition}px)`;
                 break;
         }
+        const timeId = setTimeout(() => {
+            this.wrapper.style.transitionDuration = '0s';
+
+            if (this.config.loop && diff) {
+                let move = () => {
+                    this.wrapper.appendChild(this.wrapper.children[0]);
+                }
+                if (diff < 0) {
+                    move = () => {
+                        this.wrapper.insertBefore(this.wrapper.children[this.total * 2 - 1], this.wrapper.children[0]);
+                    }
+                }
+                for (let i = Math.abs(diff); i > 0; i--) {
+                    move()
+                }
+                this.currentPosition = -this.slideWidth * (this.total);
+                this.wrapper.style.transform = `translateX(${this.currentPosition}px)`;
+                
+                clearTimeout(timeId);
+            }
+        }, this.config.speed);
+
         this.currentIndex = nextIndex;
     }
 
@@ -105,97 +166,15 @@ export default class SimpleCarousel {
     }
 
     bindEvent() {
-        // this.wrapper.addEventListener('click', () => { this.nextSlide() });
-        this.element.addEventListener('touchstart', (event) => {
-            const touch = event.touches[0];
-
-            this.wrapper.style.transitionDuration = '0s';
-
-            this.isTouching = true;
-            this.startTime = new Date().getTime();
-            this.xCoordinate = touch.clientX;
-            this.yCoordinate = touch.clientY;
+        this.wrapperTouch.on('move', (xDiff, yDiff) => {
+            this.wrapper.style.transform = `translateX(${this.currentPosition - xDiff}px)`;
         });
-        this.element.addEventListener('touchmove', (event) => {
-            if (!this.xCoordinate && !this.yCoordinate) {
-                return;
-            }
-
-            const touch = event.touches[0];
-            const xDiff = this.xCoordinate - touch.clientX;
-            const yDiff = this.yCoordinate - touch.clientY;
-
-            this.newXCoordinate = touch.clientX;
-            this.newYCoordinate = touch.clientY;
-
-            this.wrapper.style.transform = `translateX(${-this.slideWidth * this.currentIndex - xDiff}px)`;
-        });
-        this.element.addEventListener('touchend', (event) => {
-            const tDiff = new Date().getTime() - this.startTime;
-            const xDiff = this.xCoordinate - this.newXCoordinate;
-
-            this.isTouching = false;
-            this.startTime = null;
-            this.xCoordinate = null;
-            this.yCoordinate = null;
-            this.newXCoordinate = null;
-            this.newYCoordinate = null;
-
-            this.wrapper.style.transitionDuration = '.3s';
+        this.wrapperTouch.on('end', (xDiff, yDiff, tDiff) => {
             if (Math.abs(xDiff) / this.slideWidth > 0.4 || (Math.abs(xDiff) > 50 && tDiff < 300)) {
                 this.goTo(this.currentIndex + (xDiff > 0 ? 1 : -1));
             } else {
-                this.wrapper.style.transform = `translateX(-${this.slideWidth * this.currentIndex}px)`;
+                this.wrapper.style.transform = `translateX(${this.currentPosition}px)`;
             }
         });
-
-        if (screen.width > 768) {
-            this.element.addEventListener('mouseenter', () => {
-                this.mouseIn = true;
-            });
-            this.element.addEventListener('mouseleave', () => {
-                this.mouseIn = false;
-            });
-            window.addEventListener('mousedown', (event) => {
-                if (this.mouseIn) {
-                    this.wrapper.style.transitionDuration = '0s';
-
-                    this.isTouching = true;
-                    this.startTime = new Date().getTime();
-                    this.xCoordinate = event.clientX;
-                    this.yCoordinate = event.clientY;
-                }
-            });
-            window.addEventListener('mousemove', (event) => {
-                if (!this.xCoordinate && !this.yCoordinate) {
-                    return;
-                }
-
-                const xDiff = this.xCoordinate - event.clientX;
-                const yDiff = this.yCoordinate - event.clientY;
-
-                this.wrapper.style.transform = `translateX(${-this.slideWidth * this.currentIndex - xDiff}px)`;
-            });
-            window.addEventListener('mouseup', (event) => {
-                if (!this.xCoordinate && !this.yCoordinate) {
-                    return;
-                }
-
-                const tDiff = new Date().getTime() - this.startTime;
-                const xDiff = this.xCoordinate - event.clientX;
-
-                this.isTouching = false;
-                this.startTime = null;
-                this.xCoordinate = null;
-                this.yCoordinate = null;
-
-                this.wrapper.style.transitionDuration = '.3s';
-                if (Math.abs(xDiff) / this.slideWidth > 0.4 || (Math.abs(xDiff) > 50 && tDiff < 300)) {
-                    this.goTo(this.currentIndex + (xDiff > 0 ? 1 : -1));
-                } else {
-                    this.wrapper.style.transform = `translateX(-${this.slideWidth * this.currentIndex}px)`;
-                }
-            });
-        }
     }
 }
