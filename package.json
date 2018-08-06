@@ -1,7 +1,7 @@
 {
   "name": "easy-slider",
-  "version": "1.0.0",
-  "description": "a simple carousel",
+  "version": "1.0.2",
+  "description": "A simple carousel works without frameworks, tiny size and easy to use.",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --mode=development",
@@ -10,17 +10,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JiaxiangHe/simple-carousel.git"
+    "url": "git+https://github.com/JiaxiangHe/easy-slider.git"
   },
   "keywords": [
-    "carousel"
+    "carousel", "slider"
   ],
   "author": "Jiaxiang He <hejiaxiang2001@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JiaxiangHe/simple-carousel/issues"
+    "url": "https://github.com/JiaxiangHe/easy-slider/issues"
   },
-  "homepage": "https://github.com/JiaxiangHe/simple-carousel#readme",
+  "homepage": "https://github.com/JiaxiangHe/easy-slider#readme",
   "devDependencies": {
     "autoprefixer": "^9.0.2",
     "clean-webpack-plugin": "^0.1.19",

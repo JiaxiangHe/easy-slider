@@ -1,6 +1,6 @@
 # easy-slider
 A simple carousel works without frameworks, tiny size and easy to use.
-Support almost all desktop browsers include IE10, and all mobile broswers.
+Support commonly used desktop browsers include IE10, and commonly used mobile broswers.
 ## Install
 ```bash
 npm i easy-slider
