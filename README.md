@@ -8,6 +8,7 @@ npm i easy-slider
 ## Usage
 ```javascript
 import EasySlider from "easy-slider";
+import from "easy-slider/src/index.scss";
 /**
  * @constructor
  * @description Sets the selector and options, then return the instance
@@ -18,6 +19,20 @@ var easySlider = new EasySlider('.simple-carousel', {
     loop: true,
     initialSlide: 0
 });
+```
+*Note: we need some basic css support, you could use your own code instead*
+```sass
+.simple-carousel {
+    overflow: hidden;
+
+    &__wrapper {
+        display: flex;
+        transition: transform linear 0s 0s;
+    }
+    &__item {
+        flex-shrink: 0;
+    }
+}
 ```
 ## Documentation
 ### Configuration
@@ -39,8 +54,8 @@ We provide usefull methods to play with for EasySlider instance.
 | slideTo(index) | Go to the 'index'th slide  |
 | slideNext() | Go to next slide |
 | slidePrev() | Go to previous slide |
-| on(event, callback) | add event listener |
-| off(event, callback) | remove evet listener |
+| on(event, callback) | AAdd event listener |
+| off(event, callback) | Remove evet listener |
 
 ### Event
 We provide event hander to track the component behaviour instead of callbacks.
