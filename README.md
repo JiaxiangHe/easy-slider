@@ -47,7 +47,9 @@ We provide event hander to track the component behaviour instead of callbacks.
 ```javascript
 var easySlider = new EasySlider('.simple-carousel');
 // add event handler
-var initHandler = () => console.log('init');
+function initHandler() {
+    console.log(this);
+};
 easySlider.on('init', initHandler);
 // remove event handler
 easySlider.off('init', initHandler);
