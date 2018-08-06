@@ -1,10 +1,11 @@
 {
-  "name": "simple-carousel",
+  "name": "easy-slider",
   "version": "1.0.0",
   "description": "a simple carousel",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --mode=development",
+    "build": "webpack --mode=production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,7 +15,7 @@
   "keywords": [
     "carousel"
   ],
-  "author": "jiaxiang.he",
+  "author": "Jiaxiang He <hejiaxiang2001@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/JiaxiangHe/simple-carousel/issues"
@@ -22,6 +23,7 @@
   "homepage": "https://github.com/JiaxiangHe/simple-carousel#readme",
   "devDependencies": {
     "autoprefixer": "^9.0.2",
+    "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^1.0.0",
     "mini-css-extract-plugin": "^0.4.1",
     "node-sass": "^4.9.2",

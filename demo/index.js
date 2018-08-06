@@ -1,9 +1,16 @@
-import SimpleCarousel from "../src";
+import EasySlider from "../src";
+import "../src/index.scss";
 
-import "../src/index.scss"
-
-const test = new SimpleCarousel('.simple-carousel', {
+const easySlider = new EasySlider('.simple-carousel', {
     loop: true,
-    initialSlide: 2
+    initialSlide: 1
 });
-console.log(test);
+function handler() {
+    console.log(this.currentIndex);
+    if (this.currentIndex === 2) {
+        // remove event handler
+        easySlider.off('slideChange', handler);
+    }
+};
+// add event handler
+easySlider.on('slideChange', handler);

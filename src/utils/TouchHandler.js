@@ -93,7 +93,9 @@ export default class TouchHandler {
                     this.xCoordinate = event.clientX;
                     this.yCoordinate = event.clientY;
 
-                    this.callbacks.start();
+                    if (this.callbacks.start) {
+                        this.callbacks.start();
+                    }
                 }
             });
             window.addEventListener('mousemove', (event) => {

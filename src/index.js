@@ -1,11 +1,5 @@
 import TouchHandler from "./utils/TouchHandler";
 
-function log(type = 'log', ...info) {
-    if (this.config.debug) {
-        console[type](info);
-    }
-}
-
 /**
  * @const ATTRIBUTES
  * @description Collection of constant values for related data attributes of the module
@@ -17,29 +11,46 @@ const CLASSES = {
     CAROUSEL_PAGINATION: 'simple-carousel__pagination'
 };
 
+/**
+ * @const DEFAULT_CONFIG
+ * @description Collection of configuration items
+ * @type {{ debug: boolean, initialSlide: number, speed: number, loop: boolean, effect: string }}
+ */
 const DEFAULT_CONFIG = {
+    debug: false,
     initialSlide: 0,
     speed: 300,
-    debug: false,
     loop: false,
     effect: 'slide'
 }
 
-export default class SimpleCarousel {
+/**
+ * @class EasySlider
+ * @description a simple carousel component
+ */
+export default class EasySlider {
+    /**
+     * @constructor
+     * @description Sets the selector and options, then return the instance
+     * @param selector {String} The selector string of the entry node 
+     * @param config {DEFAULT_CONFIG} Component configuration object
+     */
     constructor(selector = '.simple-carousel', config = {
-        initialSlide: 0,
         debug: false,
+        initialSlide: 0,
+        speed: 300,
         loop: false,
         effect: 'slide'
     }) {
         // entry element
-        this.element = document.querySelector(selector);
+        this.element = document.querySelector(selector); // entry node
 
         // properties
         this.config = Object.assign({}, DEFAULT_CONFIG, config); // config
         this.currentIndex = null;
         this.total = null;
         this.slideWidth = null;
+        this.callbacks = [];
 
         // class
         this.elementStyle = null;
@@ -106,11 +117,22 @@ export default class SimpleCarousel {
 
         // bindEvent
         this.bindEvent();
+
+        // event track
+        this.applyEvent('init');
     }
 
-    goTo(index) {
-        const nextIndex = this.config.loop ? index + this.total % this.total : Math.max(Math.min(index, this.total - 1), 0);
-        const diff = nextIndex - this.currentIndex;
+    slideTo(index) {
+        let diff = (index - this.currentIndex) % this.total;
+        let nextIndex = index;
+        if (this.config.loop) {
+            while (nextIndex < 0) {
+                nextIndex += this.total
+            }
+            nextIndex = nextIndex % this.total;
+        } else {
+            nextIndex = Math.max(Math.min(nextIndex, this.total - 1), 0);
+        }
         // console.log(nextIndex);
         this.wrapper.style.transitionDuration = `${this.config.speed / 1000}s`;
         switch (this.config.effect) {
@@ -141,20 +163,46 @@ export default class SimpleCarousel {
                 }
                 this.currentPosition = -this.slideWidth * (this.total);
                 this.wrapper.style.transform = `translateX(${this.currentPosition}px)`;
-                
-                clearTimeout(timeId);
             }
+
+            clearTimeout(timeId);
         }, this.config.speed);
 
         this.currentIndex = nextIndex;
+
+        // event track
+        this.applyEvent('slideChange');
     }
 
-    nextSlide() {
-        this.goTo(this.currentIndex + 1);
+    slideNext() {
+        this.slideTo(this.currentIndex + 1);
     }
 
-    prevSlide() {
-        this.goTo(this.currentIndex - 1);
+    slidePrev() {
+        this.slideTo(this.currentIndex - 1);
+    }
+
+    on(action, handler) {
+        this.callbacks.push({
+            action,
+            handler
+        });
+    }
+
+    off(action, handler) {
+        this.callbacks.map((event, index) => {
+            if (action === event.action && handler === event.handler) {
+                this.callbacks.splice(index, 1);
+            }
+        });
+    }
+
+    applyEvent(action) {
+        this.callbacks.forEach((event) => {
+            if (event.action === action) {
+                event.handler.call(this);
+            }
+        });
     }
 
     cacheDom() {
@@ -166,14 +214,20 @@ export default class SimpleCarousel {
     }
 
     bindEvent() {
+        // touch event
         this.wrapperTouch.on('move', (xDiff, yDiff) => {
             this.wrapper.style.transform = `translateX(${this.currentPosition - xDiff}px)`;
         });
         this.wrapperTouch.on('end', (xDiff, yDiff, tDiff) => {
             if (Math.abs(xDiff) / this.slideWidth > 0.4 || (Math.abs(xDiff) > 50 && tDiff < 300)) {
-                this.goTo(this.currentIndex + (xDiff > 0 ? 1 : -1));
+                this.slideTo(this.currentIndex + (xDiff > 0 ? 1 : -1));
             } else {
+                this.wrapper.style.transitionDuration = `${this.config.speed / 1000}s`;
                 this.wrapper.style.transform = `translateX(${this.currentPosition}px)`;
+                const timeId = setTimeout(() => {
+                    this.wrapper.style.transitionDuration = '0s';
+                    clearTimeout(timeId);
+                }, this.config.speed);
             }
         });
     }
