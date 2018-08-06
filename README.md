@@ -54,7 +54,7 @@ We provide usefull methods to play with for EasySlider instance.
 | slideTo(index) | Go to the 'index'th slide  |
 | slideNext() | Go to next slide |
 | slidePrev() | Go to previous slide |
-| on(event, callback) | AAdd event listener |
+| on(event, callback) | Add event listener |
 | off(event, callback) | Remove evet listener |
 
 ### Event
